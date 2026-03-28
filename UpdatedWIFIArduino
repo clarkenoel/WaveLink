@@ -1,0 +1,159 @@
+#include <WiFiS3.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <Servo.h>
+#define GESTURE_UP       0
+#define GESTURE_DOWN     1
+#define GESTURE_IDLE     2
+#define GESTURE_RIGHT    3
+#define GESTURE_LEFT     4
+#define GESTURE_ROTRIGHT 5
+#define GESTURE_ROTLEFT  6
+
+// -------------------- NETWORK --------------------
+const char* AP_SSID = "WaveLinkNet";
+const char* AP_PASSWORD = "Trailblazers1234";
+const int UDP_PORT = 4210;
+
+// -------------------- PACKET --------------------
+#define PACKET_SIZE 18
+#define CMD_HEARTBEAT 255
+
+// -------------------- HARDWARE --------------------
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+const int ledPin = 10;
+const int buzzerPin = 5;
+const int servoPin = 6;
+
+Servo myServo;
+
+// -------------------- GLOBALS --------------------
+WiFiUDP udp;
+uint8_t packetBuffer[PACKET_SIZE];
+
+unsigned long lastHeartbeatReceived = 0;
+bool heartbeatActive = false;
+
+// -------------------- SETUP --------------------
+void setup() {
+    Serial.begin(115200);
+
+    // LCD
+    lcd.init();
+    lcd.backlight();
+    lcd.print("Gesture System");
+
+    // Pins
+    pinMode(ledPin, OUTPUT);
+    pinMode(buzzerPin, OUTPUT);
+
+    myServo.attach(servoPin);
+
+    // WiFi AP
+    WiFi.beginAP(AP_SSID, AP_PASSWORD);
+    udp.begin(UDP_PORT);
+
+    Serial.println("System Ready");
+}
+
+// -------------------- LOOP --------------------
+void loop() {
+    int packetSize = udp.parsePacket();
+    if (packetSize != PACKET_SIZE) return;
+
+    udp.read(packetBuffer, PACKET_SIZE);
+    processPacket();
+}
+
+// -------------------- PROCESS PACKET --------------------
+void processPacket() {
+    uint8_t gestureIndex = packetBuffer[0];
+    uint8_t confidence = packetBuffer[1];
+
+    char gestureName[16];
+    memcpy(gestureName, &packetBuffer[2], 15);
+    gestureName[15] = '\0';
+
+    // Heartbeat
+    if (gestureIndex == CMD_HEARTBEAT) {
+        lastHeartbeatReceived = millis();
+        heartbeatActive = true;
+        return:
+    }
+
+    // Serial debug
+    Serial.print("Gesture: ");
+    Serial.print(gestureName);
+    Serial.print(" | Confidence: ");
+    Serial.print(confidence);
+    Serial.println("%");
+
+    // LCD
+    displayLCD(gestureName, confidence);
+
+    // Actions
+    handleAction(gestureIndex);
+}
+
+// -------------------- LCD --------------------
+void displayLCD(const char* gestureName, uint8_t confidence) {
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(gestureName);
+
+    lcd.setCursor(10,0);
+    lcd.print(confidence);
+    lcd.print("%");
+
+    lcd.setCursor(0,1);
+    lcd.print("[");
+    int bars = confidence / 10;
+    for(int i=0;i<bars;i++) lcd.print("#");
+    for(int i=bars;i<10;i++) lcd.print(" ");
+    lcd.print("]");
+}
+
+// -------------------- ACTIONS --------------------
+void handleAction(uint8_t gestureIndex) {
+
+    // Handle IDLE first
+    if (gestureIndex == GESTURE_IDLE) {
+        digitalWrite(ledPin, LOW);
+        digitalWrite(buzzerPin, LOW);
+        myServo.write(90);
+        Serial.println("IDLE");
+        return;
+    }
+
+    switch (gestureIndex) {
+
+        case GESTURE_UP:
+            digitalWrite(ledPin, HIGH);
+            break;
+
+        case GESTURE_DOWN:
+            digitalWrite(ledPin, LOW);
+            break;
+
+        case GESTURE_RIGHT:
+            myServo.write(150);
+            break;
+
+        case GESTURE_LEFT:
+            myServo.write(30);
+            break;
+
+        case GESTURE_ROTRIGHT:
+            digitalWrite(buzzerPin, HIGH);
+            break;
+
+        case GESTURE_ROTLEFT:
+            digitalWrite(buzzerPin, LOW);
+            break;
+
+        default:
+            Serial.println("Unknown gesture");
+            break;
+    }
+}
