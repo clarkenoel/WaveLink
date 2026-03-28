@@ -20,8 +20,8 @@
 // ============================================================
 // NETWORK CONFIGURATION
 // ============================================================
-const char* AP_SSID     = "GestureNet";
-const char* AP_PASSWORD = "hack2025";
+const char* AP_SSID     = "WaveLinkNet";
+const char* AP_PASSWORD = "Trailblazers1234";
 const int   UDP_PORT    = 4210;
 
 // ============================================================
