@@ -32,9 +32,9 @@ const int   UDP_PORT    = 4210;
 // ============================================================
 // GESTURE INDICES — must match Pico firmware
 // ============================================================
-#define GESTURE_SWIPE_LEFT   0
-#define GESTURE_SWIPE_RIGHT  1
-#define GESTURE_AIR_PRESS    2
+#define GESTURE_SWIPE_LEFT   7
+#define GESTURE_SWIPE_RIGHT  8
+#define GESTURE_AIR_PRESS    9
 #define CMD_HEARTBEAT        255
 
 // ============================================================
