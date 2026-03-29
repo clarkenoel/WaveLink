@@ -85,7 +85,8 @@ driving a relay-switched lamp, servo-actuated arm, bidirectional motor, 16×2 LC
 
 <div align="center">
 
-![Architecture Diagram](Screenshot 2026-03-29 074131.png)
+![Architecture Diagram](GestureWearable
+/Screenshot 2026-03-29 074131.png)
 
 </div>
 
