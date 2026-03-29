@@ -1,3 +1,4 @@
+//Update: 8:12 pm
 #include <WiFiS3.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -11,6 +12,7 @@
 #define GESTURE_ROTLEFT  6
 
 // -------------------- NETWORK --------------------
+// The Arduino assigns itself IP address 192.168.4.1
 const char* AP_SSID = "WaveLinkNet";
 const char* AP_PASSWORD = "Trailblazers1234";
 const int UDP_PORT = 4210;
@@ -79,7 +81,7 @@ void processPacket() {
     if (gestureIndex == CMD_HEARTBEAT) {
         lastHeartbeatReceived = millis();
         heartbeatActive = true;
-        return:
+        return;
     }
 
     // Serial debug
