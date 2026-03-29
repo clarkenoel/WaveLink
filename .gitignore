@@ -1,0 +1,13 @@
+# Arduino related files
+*.bin
+*.hex
+*.log
+*.o
+*.elf
+*.d
+*.ino
+
+# Firmware related files
+firmware/*.bin
+firmware/*.hex
+firmware/*.log
