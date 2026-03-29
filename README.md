@@ -410,24 +410,6 @@ interesting than on/off switching: **directional intent encoded in a wrist rotat
   industrial environments
 
 ---
-
-## Team
-
-| Member | Discipline | Contribution |
-|---|---|---|
-| **[Name]** | [Major] | ML pipeline, Edge Impulse training, Pico firmware |
-| **[Name]** | [Major] | Arduino actuator control, WiFi/UDP protocol |
-| **[Name]** | [Major] | CAD enclosure design, 3D printing, hardware assembly |
-| **[Name]** | [Major] | Data collection, testing, presentation, documentation |
-
-## Acknowledgments
-
-- **UF AACE** — Hosting UF Hardware Hack 2025
-- **Edge Impulse** — TinyML training and deployment platform
-- **Earle Philhower** — Arduino-Pico board package
-
----
-
 <div align="center">
 
 **Built in 24 hours at UF Hardware Hack 2025**
