@@ -1,161 +1,294 @@
-//New: 6:54am
+// ============================================================
+// ARDUINO GESTURE CONTROLLER RECEIVER
+// Target: Arduino Uno R4 WiFi
+// Updated: Gesture indices now match Edge Impulse alphabetical
+//          class order to align with Pico firmware output.
+// ============================================================
+//
+// Edge Impulse sorts classes alphabetically at export time.
+// Assumed class order (update if your labels differ):
+//   0 = flick_down
+//   1 = flick_up
+//   2 = idle
+//   3 = punch
+//   4 = shake
+//   5 = twist_ccw
+//   6 = twist_cw
+//
+// HOW TO VERIFY YOUR ORDER:
+//   Open Serial Monitor on the Pico and watch the inference
+//   output line. Left-to-right order = index 0, 1, 2, etc.
+//   e.g. "flick_down:12 flick_up:8 idle:74 ..."
+//   Update the #defines below to match if your labels differ.
+//
+// ============================================================
+
 #include <WiFiS3.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
-#define GESTURE_UP       0
-#define GESTURE_DOWN     1
-#define GESTURE_IDLE     2
-#define GESTURE_RIGHT    3
-#define GESTURE_LEFT     4
-#define GESTURE_ROTRIGHT 5
-#define GESTURE_ROTLEFT  6
 
-// -------------------- NETWORK --------------------
+// ============================================================
+// GESTURE INDEX DEFINITIONS
+// These MUST match Edge Impulse's alphabetical class order.
+// ============================================================
+#define GESTURE_FLICK_DOWN   0   // flick_down
+#define GESTURE_FLICK_UP     1   // flick_up
+#define GESTURE_IDLE         2   // idle
+#define GESTURE_PUNCH        3   // punch
+#define GESTURE_SHAKE        4   // shake
+#define GESTURE_TWIST_CCW    5   // twist_ccw
+#define GESTURE_TWIST_CW     6   // twist_cw
+
+// ============================================================
+// NETWORK CONFIGURATION
+// ============================================================
 // The Arduino assigns itself IP address 192.168.4.1
-const char* AP_SSID = "WaveLinkNet";
+const char* AP_SSID     = "WaveLinkNet";
 const char* AP_PASSWORD = "Trailblazers1234";
-const int UDP_PORT = 4210;
+const int   UDP_PORT    = 4210;
 
-// -------------------- PACKET --------------------
-#define PACKET_SIZE 18
+// ============================================================
+// PACKET CONFIGURATION
+// ============================================================
+// Packet structure (must match Pico firmware exactly):
+//   Byte 0:     Gesture index (0-254) or 255 for heartbeat
+//   Byte 1:     Confidence as integer percentage (0-100)
+//   Bytes 2-17: Gesture name as null-terminated string
+//               (up to 15 characters + null terminator)
+#define PACKET_SIZE   18
 #define CMD_HEARTBEAT 255
 
-// -------------------- HARDWARE --------------------
+// ============================================================
+// HEARTBEAT TIMEOUT
+// If no heartbeat is received within this window, the Pico
+// is considered disconnected.
+// ============================================================
+#define HEARTBEAT_TIMEOUT_MS 15000
+
+// ============================================================
+// HARDWARE CONFIGURATION
+// ============================================================
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-const int ledPin = 10;
+const int ledPin    = 10;
 const int buzzerPin = 5;
-const int servoPin = 6;
+const int servoPin  = 6;
 
 Servo myServo;
 
-// -------------------- GLOBALS --------------------
-WiFiUDP udp;
-uint8_t packetBuffer[PACKET_SIZE];
+// ============================================================
+// GLOBAL STATE
+// ============================================================
+WiFiUDP  udp;
+uint8_t  packetBuffer[PACKET_SIZE];
 
 unsigned long lastHeartbeatReceived = 0;
-bool heartbeatActive = false;
+bool          picoConnected         = false;
 
-// -------------------- SETUP --------------------
+// ============================================================
+// SETUP
+// ============================================================
 void setup() {
     Serial.begin(115200);
 
-    // LCD
+    // ---- LCD ----
     lcd.init();
     lcd.backlight();
+    lcd.setCursor(0, 0);
     lcd.print("Gesture System");
+    lcd.setCursor(0, 1);
+    lcd.print("Starting...");
 
-    // Pins
+    // ---- Pins ----
     pinMode(ledPin, OUTPUT);
     pinMode(buzzerPin, OUTPUT);
+    digitalWrite(ledPin, LOW);
+    digitalWrite(buzzerPin, LOW);
 
     myServo.attach(servoPin);
+    myServo.write(90); // Centre position on startup
 
-    // WiFi AP
+    // ---- WiFi Access Point ----
+    Serial.print("Starting AP: ");
+    Serial.println(AP_SSID);
     WiFi.beginAP(AP_SSID, AP_PASSWORD);
+
+    // ---- UDP ----
     udp.begin(UDP_PORT);
 
-    Serial.println("System Ready");
+    Serial.print("Listening on UDP port ");
+    Serial.println(UDP_PORT);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Waiting for");
+    lcd.setCursor(0, 1);
+    lcd.print("Pico...");
+
+    Serial.println("System Ready — waiting for Pico connection.");
 }
 
-// -------------------- LOOP --------------------
+// ============================================================
+// MAIN LOOP
+// ============================================================
 void loop() {
+    // ---- Check for incoming UDP packet ----
     int packetSize = udp.parsePacket();
-    if (packetSize != PACKET_SIZE) return;
+    if (packetSize == PACKET_SIZE) {
+        udp.read(packetBuffer, PACKET_SIZE);
+        processPacket();
+    }
 
-    udp.read(packetBuffer, PACKET_SIZE);
-    processPacket();
+    // ---- Monitor Pico connection via heartbeat ----
+    monitorConnection();
 }
 
-// -------------------- PROCESS PACKET --------------------
+// ============================================================
+// PROCESS INCOMING PACKET
+// ============================================================
 void processPacket() {
     uint8_t gestureIndex = packetBuffer[0];
-    uint8_t confidence = packetBuffer[1];
+    uint8_t confidence   = packetBuffer[1];
 
     char gestureName[16];
     memcpy(gestureName, &packetBuffer[2], 15);
-    gestureName[15] = '\0';
+    gestureName[15] = '\0'; // Ensure null termination
 
-    // Heartbeat
+    // ---- Heartbeat ----
     if (gestureIndex == CMD_HEARTBEAT) {
         lastHeartbeatReceived = millis();
-        heartbeatActive = true;
+
+        if (!picoConnected) {
+            picoConnected = true;
+            Serial.println("[HEARTBEAT] Pico connected.");
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Pico Connected");
+        }
         return;
     }
 
-    // Serial debug
+    // ---- Gesture received ----
     Serial.print("Gesture: ");
     Serial.print(gestureName);
-    Serial.print(" | Confidence: ");
+    Serial.print(" (index ");
+    Serial.print(gestureIndex);
+    Serial.print(") | Confidence: ");
     Serial.print(confidence);
     Serial.println("%");
 
-    // LCD
+    // Update LCD
     displayLCD(gestureName, confidence);
 
-    // Actions
+    // Execute the action for this gesture
     handleAction(gestureIndex);
 }
 
-// -------------------- LCD --------------------
+// ============================================================
+// MONITOR PICO CONNECTION VIA HEARTBEAT
+// ============================================================
+void monitorConnection() {
+    if (!picoConnected) return;
+
+    unsigned long now = millis();
+    if (now - lastHeartbeatReceived > HEARTBEAT_TIMEOUT_MS) {
+        picoConnected = false;
+        Serial.println("WARNING: Pico heartbeat lost — connection timed out.");
+
+        // Safe state on disconnect
+        digitalWrite(ledPin, LOW);
+        digitalWrite(buzzerPin, LOW);
+        myServo.write(90);
+
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Pico Lost!");
+        lcd.setCursor(0, 1);
+        lcd.print("Reconnecting...");
+    }
+}
+
+// ============================================================
+// LCD DISPLAY
+// ============================================================
 void displayLCD(const char* gestureName, uint8_t confidence) {
     lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(gestureName);
 
-    lcd.setCursor(10,0);
+    // Row 0: gesture name + confidence percentage
+    lcd.setCursor(0, 0);
+    lcd.print(gestureName);
+    lcd.setCursor(10, 0);
     lcd.print(confidence);
     lcd.print("%");
 
-    lcd.setCursor(0,1);
+    // Row 1: confidence bar
+    lcd.setCursor(0, 1);
     lcd.print("[");
     int bars = confidence / 10;
-    for(int i=0;i<bars;i++) lcd.print("#");
-    for(int i=bars;i<10;i++) lcd.print(" ");
+    for (int i = 0; i < bars; i++)       lcd.print("#");
+    for (int i = bars; i < 10; i++)      lcd.print(" ");
     lcd.print("]");
 }
 
-// -------------------- ACTIONS --------------------
+// ============================================================
+// GESTURE ACTION HANDLER
+// ============================================================
+// gestureIndex values are set by Edge Impulse alphabetically.
+// Update the #defines at the top of this file if your
+// class names are different.
 void handleAction(uint8_t gestureIndex) {
 
-    // Handle IDLE first
+    // Idle — return all outputs to safe/neutral state
     if (gestureIndex == GESTURE_IDLE) {
         digitalWrite(ledPin, LOW);
         digitalWrite(buzzerPin, LOW);
         myServo.write(90);
-        Serial.println("IDLE");
+        Serial.println("Action: IDLE — outputs reset");
         return;
     }
 
     switch (gestureIndex) {
 
-        case GESTURE_UP:
+        case GESTURE_FLICK_UP:
+            // Flick up → LED on
             digitalWrite(ledPin, HIGH);
+            Serial.println("Action: FLICK_UP — LED ON");
             break;
 
-        case GESTURE_DOWN:
+        case GESTURE_FLICK_DOWN:
+            // Flick down → LED off
             digitalWrite(ledPin, LOW);
+            Serial.println("Action: FLICK_DOWN — LED OFF");
             break;
 
-        case GESTURE_RIGHT:
+        case GESTURE_PUNCH:
+            // Punch → Servo right
             myServo.write(150);
+            Serial.println("Action: PUNCH — Servo 150°");
             break;
 
-        case GESTURE_LEFT:
+        case GESTURE_SHAKE:
+            // Shake → Servo left
             myServo.write(30);
+            Serial.println("Action: SHAKE — Servo 30°");
             break;
 
-        case GESTURE_ROTRIGHT:
+        case GESTURE_TWIST_CCW:
+            // Twist counter-clockwise → Buzzer on
             digitalWrite(buzzerPin, HIGH);
+            Serial.println("Action: TWIST_CCW — Buzzer ON");
             break;
 
-        case GESTURE_ROTLEFT:
+        case GESTURE_TWIST_CW:
+            // Twist clockwise → Buzzer off
             digitalWrite(buzzerPin, LOW);
+            Serial.println("Action: TWIST_CW — Buzzer OFF");
             break;
 
         default:
-            Serial.println("Unknown gesture");
+            Serial.print("Action: UNKNOWN gesture index ");
+            Serial.println(gestureIndex);
             break;
     }
 }
