@@ -38,7 +38,7 @@ Across all three contexts, the failure mode is the same: **solutions are either
 too expensive, too fragile, or too dependent on infrastructure that isn't
 always there.**
 
-We built a **$23 wearable** that runs a neural network entirely on-chip,
+We built a **$20 wearable** that runs a neural network entirely on-chip,
 classifying 5 gesture classes in **29ms** with no cloud dependency, no
 proprietary infrastructure, and no single point of failure — then wirelessly
 commands physical devices over a self-hosted WiFi network that works anywhere.
@@ -67,10 +67,10 @@ end-to-end response — fast enough to feel instantaneous to the user.
 
 <div align="center">
 
-<img src="media/wearable_assembled.jpeg" width="400" alt="Wearable Assembled">
+<img src="media/wearable_assembled.jpeg" width="400" height="400" alt="Wearable Assembled">
 
 Wavelink wearable — Pico 2 WH + MPU6050 housed in a 3D-printed enclosure  
-designed and printed on-site. Total weight: 34g. Total cost: $23.
+designed and printed on-site. Total weight: 34g. Total cost: $20.
 
 </div>
 
@@ -78,7 +78,7 @@ designed and printed on-site. Total weight: 34g. Total cost: $23.
 
 <div align="center">
 
-<img src="media/demo_station.jpeg" width="400" alt = "Demo Station">
+<img src="media/demo_station.jpeg" width="400" height="400" alt = "Demo Station">
 
 Demo station — Arduino Uno R4 WiFi acting as a standalone access point,  
 driving a relay-switched lamp, servo-actuated arm, bidirectional motor, 16×2 LCD, and LED array.
@@ -191,10 +191,8 @@ intent transmitted wirelessly from a wrist rotation.
 | **Wireless Range** | 30m tested, zero packet loss |
 | **Classification Accuracy** | 83.3% (5 classes, held-out validation set) |
 | **Power Consumption** | ~155mA average |
-| **Battery Life** | ~16 hours (2× AA) |
-| **Wearable Weight** | 34g |
-| **Enclosure** | 3D-printed PLA, 3 design iterations in 24 hours |
-| **Total Hardware Cost** | $23 |
+| **Enclosure** | 3D-printed PLA, multiple design iterations in 24 hours |
+| **Total Hardware Cost** | $20 |
 
 The numbers that matter most: **29ms inference on a $7 chip, 3.5% RAM
 utilization, and 16 hours of battery life** — all without a cloud connection,
@@ -287,11 +285,9 @@ leaving ample headroom for future multi-device or mesh configurations.
 
 The wristband enclosure was designed from scratch in CAD during the hackathon —
 the first time any team member had used CAD software. We printed and iterated
-3 times over the course of the build: the first version established the component
-layout, the second tightened tolerances around the Pico and battery holder, and
-the third reduced the overall wrist profile and added a snap-fit lid. The final
+many times over the course of the build: the first.The final
 enclosure weighs 34g worn, fits a standard wrist strap, and fully encloses all
-electronics with no exposed solder joints.
+of the wiring.
 
 <div align="center">
 
@@ -309,8 +305,6 @@ electronics with no exposed solder joints.
 |---|---|---|---|
 | Raspberry Pi Pico 2 WH | 1 | $7.00 | Edge ML inference + WiFi client |
 | MPU6050 6-Axis IMU | 1 | $4.00 | Motion sensing — accel + gyro at 100Hz |
-| 2×AA Battery Holder | 1 | $2.00 | Wearable power (3.0V, ~16hr runtime) |
-| AA Batteries | 2 | $1.00 | — |
 | 22AWG Hookup Wire + Heat Shrink | — | $7.00 | Soldered wearable connections |
 | 3D-Printed Enclosure (PLA) | 1 | $0.00 | Printed on-site, 3 iterations |
 | Arduino Uno R4 WiFi | 1 | Kit | Standalone AP + actuator controller |
@@ -320,7 +314,7 @@ electronics with no exposed solder joints.
 | 16×2 LCD (I2C) | 1 | Kit | Real-time gesture status display |
 | LEDs + Resistors | 4 | Kit | Visual feedback indicators |
 | Passive Buzzer | 1 | Kit | Audio confirmation feedback |
-| **Total** | | **$23.00** | |
+| **Total** | | **$20.00** | |
 
 ### Wiring
 
@@ -348,7 +342,7 @@ electronics with no exposed solder joints.
 3. Upload data to Edge Impulse — spectral analysis block + classification block
 4. Train model, export as Arduino library, install in Arduino IDE
 5. Flash `firmware/pico_gesture_controller/` with your trained model included
-6. Connect 2×AA battery holder to `VSYS` and `GND`
+6. Connect Pico to power source (laptop or battery pack)
 
 ### Demo Station (Arduino Uno R4 WiFi)
 
@@ -420,7 +414,6 @@ interesting than on/off switching: **directional intent encoded in a wrist rotat
 
 **Built in 24 hours at UF Hardware Hack 2025**
 
-*Wavelink demonstrates that meaningful AI can run on a $7 chip —  
-no cloud, no GPU, no compromise.*
+*Wavelink demonstrates that meaningful AI can run on a $7 chip — no cloud, no GPU, no compromise.*
 
 </div>
