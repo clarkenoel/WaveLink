@@ -68,8 +68,9 @@ end-to-end response — fast enough to feel instantaneous to the user.
 <div align="center">
 
 <img src="media/wearable_assembled.jpeg" width="400" alt="Wearable Assembled">
-*Wavelink wearable — Pico 2 WH + MPU6050 housed in a 3D-printed enclosure  
-designed and printed on-site. Total weight: 34g. Total cost: $23.*
+
+Wavelink wearable — Pico 2 WH + MPU6050 housed in a 3D-printed enclosure  
+designed and printed on-site. Total weight: 34g. Total cost: $23.
 
 </div>
 
@@ -77,9 +78,9 @@ designed and printed on-site. Total weight: 34g. Total cost: $23.*
 
 <div align="center">
 
-![Demo Station]()
-*Demo station — Arduino Uno R4 WiFi acting as a standalone access point,  
-driving a relay-switched lamp, servo-actuated arm, bidirectional motor, 16×2 LCD, and LED array.*
+<img src="media/demo_station.jpeg" width="400" alt = "Demo Station">
+Demo station — Arduino Uno R4 WiFi acting as a standalone access point,  
+driving a relay-switched lamp, servo-actuated arm, bidirectional motor, 16×2 LCD, and LED array.
 
 </div>
 
