@@ -79,6 +79,7 @@ designed and printed on-site. Total weight: 34g. Total cost: $23.
 <div align="center">
 
 <img src="media/demo_station.jpeg" width="400" alt = "Demo Station">
+
 Demo station — Arduino Uno R4 WiFi acting as a standalone access point,  
 driving a relay-switched lamp, servo-actuated arm, bidirectional motor, 16×2 LCD, and LED array.
 
