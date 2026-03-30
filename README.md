@@ -65,7 +65,7 @@ end-to-end response — fast enough to feel instantaneous to the user.
 
 <div align="center">
 
-![Wearable Assembled](media/wearable_assembled.jpg)
+![Wearable Assembled](media/wearable_assembled.jpeg)
 *Wavelink wearable — Pico 2 WH + MPU6050 housed in a 3D-printed enclosure  
 designed and printed on-site. Total weight: 34g. Total cost: $23.*
 
