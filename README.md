@@ -412,7 +412,7 @@ interesting than on/off switching: **directional intent encoded in a wrist rotat
 ---
 <div align="center">
 
-**Built in 24 hours at UF Hardware Hack 2025**
+**Built in 24 hours at UF Hardware Hack 2026**
 
 *Wavelink demonstrates that meaningful AI can run on a $7 chip — no cloud, no GPU, no compromise.*
 
