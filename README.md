@@ -7,7 +7,7 @@
 *A wearable that classifies hand gestures in real-time using a TinyML model  
 running on a $7 microcontroller — 29ms latency, zero cloud dependency, 3D-printed enclosure designed and iterated in 24 hours.*
 
-**UF Hardware Hack 2025** · 24-Hour Build · University of Florida
+**UF Hardware Hack 2026** · 24-Hour Build · University of Florida
 
 [Demo Video](#demo) · [Architecture](#architecture) · [How It Works](#how-it-works) · [Model Performance](#model-performance) · [Build It](#build-it)
 
