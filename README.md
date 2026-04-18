@@ -291,14 +291,14 @@ of the wiring.
 
 <div align="center">
 
-![Wearable Exposed]
+Wearable Exposed:
 *Interior view — Pico 2 WH, MPU6050, and battery holder before enclosure.*
 <div align="center">
 
 <img src="media/internalwiring.jpeg" width="400" height="400" alt = "Internal Wiring">
 
 
-![Wearable Assembled]
+Wearable Assembled:
 *Final enclosure, third iteration. Snap-fit lid, wrist-profile form factor.*
 <div align="center">
 
