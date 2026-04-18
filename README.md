@@ -291,7 +291,7 @@ of the wiring.
 
 <div align="center">
 
-![Wearable Exposed](media/wearable_exposed.jpg)
+![Wearable Exposed](<img width="3024" height="4032" alt="internalwiring" src="https://github.com/user-attachments/assets/15560308-fa9c-4cf1-a6a8-f7c6a3ab2ba1" />)
 *Interior view — Pico 2 WH, MPU6050, and battery holder before enclosure.*
 
 ![Wearable Assembled](media/wearable_assembled.jpg)
