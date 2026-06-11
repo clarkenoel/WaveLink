@@ -111,8 +111,8 @@ WEARABLE (on wrist)                        DEMO STATION (on table)
 │                       │                  │  Self-hosted AP.      │
 └───────────────────────┘                  └───────────────────────┘
 
-         ↑ All inference on-device                ↑ All actuation local
-         ↑ No data leaves the wrist               ↑ Works without internet
+          ↑ All inference on-device                ↑ All actuation local
+          ↑ No data leaves the wrist               ↑ Works without internet
 ```
 
 ### Signal Processing Pipeline
@@ -126,7 +126,7 @@ Hand Motion → IMU (100Hz, 6-axis) → Sliding Window → DSP (FFT) → Neural 
                                                                   score (0-100%)
 ```
 
-Every component in this stack was chosen to eliminate a dependency. Inference runs entirely on the Pico — no cloud API, no round-trip latency, no data leaving the wrist. The Arduino operates as its own WiFi access point, meaning the system boots and works anywhere with no router, no internet, and no external infrastructure. UDP keeps command transmission under 1ms at close range — for fire-and-forget gesture commands, TCP's handshake overhead buys nothing. The result is a two-node system with no external dependencies and no single point of failure.
+Every component in this stack was chosen to eliminate a dependency. Inference runs entirely on the Pico — no cloud API, no round-trip latency, no data leaving the wrist. The Arduino operates as[...]
 
 ---
 
