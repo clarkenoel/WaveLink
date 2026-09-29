@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🖐️ Wavelink
+# Wavelink
 
 ### AI-Powered Gesture Control System with On-Device Neural Network Inference
 
